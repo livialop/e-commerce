@@ -13,15 +13,15 @@ from .routers.users import users
 app = FastAPI()
 
 # Routers
-app.include_router(avaliacoes.router)
-app.include_router(categorias.router)
-app.include_router(enderecos.router)
-app.include_router(estoque.router)
-app.include_router(pagamentos.router)
-app.include_router(papeis.router)
-app.include_router(pedidos.router)
-app.include_router(produtos.router)
-app.include_router(users.router)
+app.include_router(avaliacoes.avaliacoes_router)
+app.include_router(categorias.categorias_router)
+app.include_router(enderecos.enderecos_router)
+app.include_router(estoque.estoque_router)
+app.include_router(pagamentos.pagamentos_router)
+app.include_router(papeis.papeis_router)
+app.include_router(pedidos.pedidos_router)
+app.include_router(produtos.produto_router)
+app.include_router(users.user_router)
 
 
 @app.get("/")
