@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Usuarios
-from crud.dto.dto import UsuarioCreate
+from crud.dto.dto import UsuarioCreate, UsuarioUpdate
 
 from pwdlib import PasswordHash
 
@@ -46,7 +46,39 @@ def criar_usuario(usuario: UsuarioCreate, session: Session = Depends(get_session
     
     return novo_user
 
-# @router.patch()
-# def update_user():
-#     pass
+@user_router.patch("/user/", response_model=Usuarios)
+def update_user(user_update: UsuarioUpdate, usuario_id: int, session: Session = Depends(get_session)):
+    user_existente = session.exec(
+        select(Usuarios).where(Usuarios.id == usuario_id)
+    ).first()
 
+    usuario = session.get(Usuarios, usuario_id)
+
+    # Checando se o usuário existe e se o email atualizado é válido
+    if not user_existente:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
+
+    if user_update.email:
+        email_utilizado = session.exec(
+            select(Usuarios).where(Usuarios.email == user_update.email)
+        ).first()
+
+        if email_utilizado and user_update.email == email_utilizado.email:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="E-mail em uso.")
+    
+
+    # Fazendo o update
+    if user_update.nome:
+        usuario.nome = user_update.nome
+    if user_update.email:
+        usuario.email = user_update.email
+    if user_update.senha:
+        usuario.senha_hash = password_hash.hash(user_update.senha)
+
+    try:
+        session.commit()
+        session.refresh(usuario)
+        return usuario
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar usuário")

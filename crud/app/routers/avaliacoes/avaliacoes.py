@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Avaliacoes
-from crud.dto.dto import AvaliacaoCreate
+from crud.dto.dto import AvaliacaoCreate, AvaliacaoUpdate
 
 avaliacoes_router = APIRouter(prefix="/avaliacoes", tags=["Avaliações"])
 
@@ -52,3 +52,29 @@ def criar_avaliacao(avaliacao: AvaliacaoCreate, session: Session = Depends(get_s
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao adicionar avaliação.")
     
     return nova_avaliacao
+
+
+@avaliacoes_router.patch("/avaliacoes/{avaliacao_id}", response_model=Avaliacoes)
+def atualizar_avaliacao(avaliacao_update: AvaliacaoUpdate, avaliacao_id: int, session: Session = Depends(get_session)):
+    avaliacao = session.get(Avaliacoes, avaliacao_id)
+    if not avaliacao:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Avaliação não encontrada")
+
+    if avaliacao_update.usuario_id is not None:
+        avaliacao.usuario_id = avaliacao_update.usuario_id
+    if avaliacao_update.produto_id is not None:
+        avaliacao.produto_id = avaliacao_update.produto_id
+    if avaliacao_update.nota is not None:
+        if avaliacao_update.nota < 0 or avaliacao_update.nota > 5:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="A nota deve ser entre 1 e 5.")
+        avaliacao.nota = avaliacao_update.nota
+    if avaliacao_update.comentario is not None:
+        avaliacao.comentario = avaliacao_update.comentario
+
+    try:
+        session.commit()
+        session.refresh(avaliacao)
+        return avaliacao
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar avaliação.")

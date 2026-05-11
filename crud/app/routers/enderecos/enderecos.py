@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Enderecos
-from crud.dto.dto import EnderecoCreate
+from crud.dto.dto import EnderecoCreate, EnderecoUpdate
 
 enderecos_router = APIRouter(prefix="/enderecos", tags=["Endereços"])
 
@@ -42,3 +42,29 @@ def criar_endereco(endereco: EnderecoCreate, session: Session = Depends(get_sess
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao registrar endereço.")
     
     return novo_endereco
+
+
+@enderecos_router.patch("/enderecos/{endereco_id}", response_model=Enderecos)
+def atualizar_endereco(endereco_update: EnderecoUpdate, endereco_id: int, session: Session = Depends(get_session)):
+    endereco = session.get(Enderecos, endereco_id)
+    if not endereco:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Endereço não encontrado")
+
+    if endereco_update.usuario_id is not None:
+        endereco.usuario_id = endereco_update.usuario_id
+    if endereco_update.rua is not None:
+        endereco.rua = endereco_update.rua
+    if endereco_update.cidade is not None:
+        endereco.cidade = endereco_update.cidade
+    if endereco_update.estado is not None:
+        endereco.estado = endereco_update.estado
+    if endereco_update.cep is not None:
+        endereco.cep = endereco_update.cep
+
+    try:
+        session.commit()
+        session.refresh(endereco)
+        return endereco
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar endereço.")

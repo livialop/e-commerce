@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Estoque
-from crud.dto.dto import EstoqueCreate
+from crud.dto.dto import EstoqueCreate, EstoqueUpdate
 
 estoque_router = APIRouter(prefix="/estoque", tags=["Estoque"])
 
@@ -41,3 +41,25 @@ def criar_estoque(estoque: EstoqueCreate, session: Session = Depends(get_session
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao adicionar estoque.")
     
     return novo_estoque
+
+
+@estoque_router.patch("/estoque/{estoque_id}", response_model=Estoque)
+def atualizar_estoque(estoque_update: EstoqueUpdate, estoque_id: int, session: Session = Depends(get_session)):
+    estoque = session.get(Estoque, estoque_id)
+    if not estoque:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Estoque não encontrado")
+
+    if estoque_update.produto_id is not None:
+        estoque.produto_id = estoque_update.produto_id
+    if estoque_update.quantidade is not None:
+        if estoque_update.quantidade < 0:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="O estoque não pode ser negativo.")
+        estoque.quantidade = estoque_update.quantidade
+
+    try:
+        session.commit()
+        session.refresh(estoque)
+        return estoque
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar estoque.")
