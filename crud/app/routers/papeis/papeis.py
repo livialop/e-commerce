@@ -61,3 +61,19 @@ def atualizar_papel(papel_update: PapelUpdate, papel_id: int, session: Session =
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar papel.")
+
+
+@papeis_router.delete("/papeis/{papel_id}")
+def deletar_papel(papel_id: int, session: Session = Depends(get_session)):
+    papel = session.get(Papeis, papel_id)
+
+    if not papel:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Papel não encontrado.")
+
+    session.delete(papel)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar papel.")

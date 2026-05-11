@@ -64,3 +64,19 @@ def atualizar_produto(produto_update: ProdutoUpdate, produto_id: int, session: S
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar produto.")
+
+
+@produto_router.delete("/produtos/{produto_id}")
+def deletar_produto(produto_id: int, session: Session = Depends(get_session)):
+    produto = session.get(Produtos, produto_id)
+    
+    if not produto:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Produto não encontrado.")
+    
+    session.delete(produto)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar produto.")

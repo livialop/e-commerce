@@ -68,3 +68,19 @@ def atualizar_endereco(endereco_update: EnderecoUpdate, endereco_id: int, sessio
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar endereço.")
+
+
+@enderecos_router.delete("/enderecos/{endereco_id}")
+def deletar_endereco(endereco_id: int, session: Session = Depends(get_session)):
+    endereco = session.get(Enderecos, endereco_id)
+
+    if not endereco:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Endereço não encontrado.")
+
+    session.delete(endereco)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar endereço.")

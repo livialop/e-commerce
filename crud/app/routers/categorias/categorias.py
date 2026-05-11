@@ -60,3 +60,19 @@ def atualizar_categoria(categoria_update: CategoriaUpdate, categoria_id: int, se
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar categoria.")
+
+
+@categorias_router.delete("/categorias/{categoria_id}")
+def deletar_categoria(categoria_id: int, session: Session = Depends(get_session)):
+    categoria = session.get(Categorias, categoria_id)
+
+    if not categoria:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Categoria não encontrada.")
+
+    session.delete(categoria)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar categoria.")

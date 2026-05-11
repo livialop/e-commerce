@@ -78,3 +78,19 @@ def atualizar_avaliacao(avaliacao_update: AvaliacaoUpdate, avaliacao_id: int, se
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar avaliação.")
+
+
+@avaliacoes_router.delete("/avaliacoes/{avaliacao_id}")
+def deletar_avaliacao(avaliacao_id: int, session: Session = Depends(get_session)):
+    avaliacao = session.get(Avaliacoes, avaliacao_id)
+
+    if not avaliacao:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Avaliação não encontrada.")
+
+    session.delete(avaliacao)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar avaliação.")

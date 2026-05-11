@@ -64,3 +64,19 @@ def atualizar_pagamento(pagamento_update: PagamentoUpdate, pagamento_id: int, se
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar pagamento.")
+
+
+@pagamentos_router.delete("/pagamentos/{pagamento_id}")
+def deletar_pagamento(pagamento_id: int, session: Session = Depends(get_session)):
+    pagamento = session.get(Pagamentos, pagamento_id)
+
+    if not pagamento:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Pagamento não encontrado.")
+
+    session.delete(pagamento)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar pagamento.")

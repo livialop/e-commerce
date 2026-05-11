@@ -70,3 +70,19 @@ def atualizar_pedido(pedido_update: PedidoUpdate, pedido_id: int, session: Sessi
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar pedido.")
+
+
+@pedidos_router.delete("/pedidos/{pedido_id}")
+def deletar_pedido(pedido_id: int, session: Session = Depends(get_session)):
+    pedido = session.get(Pedidos, pedido_id)
+
+    if not pedido:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Pedido não encontrado.")
+
+    session.delete(pedido)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar pedido.")

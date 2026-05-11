@@ -63,3 +63,19 @@ def atualizar_estoque(estoque_update: EstoqueUpdate, estoque_id: int, session: S
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar estoque.")
+
+
+@estoque_router.delete("/estoque/{estoque_id}")
+def deletar_estoque(estoque_id: int, session: Session = Depends(get_session)):
+    estoque = session.get(Estoque, estoque_id)
+
+    if not estoque:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Estoque não encontrado.")
+
+    session.delete(estoque)
+
+    try:
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar estoque.")
