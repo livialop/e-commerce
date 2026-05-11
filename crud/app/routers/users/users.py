@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Usuarios
-from crud.dto.schema import UsuarioCreate
+from crud.dto.dto import UsuarioCreate
 
 from pwdlib import PasswordHash
 

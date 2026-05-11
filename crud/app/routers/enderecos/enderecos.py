@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Enderecos
-from crud.dto.schema import EnderecoCreate
+from crud.dto.dto import EnderecoCreate
 
 enderecos_router = APIRouter(prefix="/enderecos", tags=["Endereços"])
 

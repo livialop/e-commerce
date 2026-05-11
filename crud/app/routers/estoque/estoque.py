@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Estoque
-from crud.dto.schema import EstoqueCreate
+from crud.dto.dto import EstoqueCreate
 
 estoque_router = APIRouter(prefix="/estoque", tags=["Estoque"])
 

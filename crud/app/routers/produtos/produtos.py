@@ -6,7 +6,7 @@ from sqlmodel import Session
 
 from crud.database.database import get_session
 from crud.models.model import Produtos
-from crud.dto.schema import ProdutoCreate
+from crud.dto.dto import ProdutoCreate
 
 
 produto_router = APIRouter(prefix="/produtos", tags=["Produtos"])

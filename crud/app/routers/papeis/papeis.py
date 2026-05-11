@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Papeis
-from crud.dto.schema import PapelCreate
+from crud.dto.dto import PapelCreate
 
 
 papeis_router = APIRouter(prefix="/papeis", tags=["Papéis"])

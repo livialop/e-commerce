@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Categorias
-from crud.dto.schema import CategoriaCreate
+from crud.dto.dto import CategoriaCreate
 
 
 categorias_router = APIRouter(prefix="/categorias", tags=["Categorias"])

@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Pedidos, Usuarios
-from crud.dto.schema import PedidoCreate
+from crud.dto.dto import PedidoCreate
 
 pedidos_router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 

@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Pagamentos
-from crud.dto.schema import PagamentoCreate
+from crud.dto.dto import PagamentoCreate
 
 
 pagamentos_router = APIRouter(prefix="/pagamentos", tags=["Pagamentos"])
