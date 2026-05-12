@@ -5,7 +5,7 @@ from typing import List
 from sqlmodel import Session
 
 from crud.database.database import get_session
-from crud.models.model import Produtos
+from crud.models.model import Produtos, ProdutoCategorias, Categorias
 from crud.dto.dto import ProdutoCreate, ProdutoUpdate
 
 
@@ -80,3 +80,22 @@ def deletar_produto(produto_id: int, session: Session = Depends(get_session)):
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar produto.")
+    
+
+# Produtos Categorias
+@produto_router.get("/produtos/categoria/{produto_id}")
+def listar_produtos_categorias(produto_id: int, session: Session = Depends(get_session)):
+    produtos_categorias = session.exec(
+        select(Produtos.nome, Categorias.nome)
+        .select_from(ProdutoCategorias)
+        .join(Produtos, Produtos.id == ProdutoCategorias.produto_id)
+        .join(Categorias, Categorias.id == ProdutoCategorias.categoria_id)
+        .where(ProdutoCategorias.produto_id == produto_id)
+    ).all()
+
+    return [
+        {
+            "produto": p,
+            "categoria": c
+        } for p, c in produtos_categorias
+    ]

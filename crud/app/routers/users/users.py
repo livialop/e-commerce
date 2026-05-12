@@ -4,7 +4,7 @@ from sqlmodel import Session
 from typing import List
 
 from crud.database.database import get_session
-from crud.models.model import Usuarios
+from crud.models.model import Usuarios, Papeis, UsuarioPapeis
 from crud.dto.dto import UsuarioCreate, UsuarioUpdate
 
 from pwdlib import PasswordHash
@@ -98,3 +98,23 @@ def deletar_usuario(usuario_id: int, session: Session = Depends(get_session)):
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao deletar usuário.")
+    
+
+# Usuários Papeis
+@user_router.get("/users/papeis/{usuario_id}")
+def listar_papeisusuarios(usuario_id: int, session: Session = Depends(get_session)):
+    papeis_users = session.exec(
+        select(Usuarios.nome, Papeis.nome)
+        .select_from(UsuarioPapeis)
+        .join(Usuarios, Usuarios.id == UsuarioPapeis.usuario_id)
+        .join(Papeis, Papeis.id == UsuarioPapeis.papel_id)
+        .where(UsuarioPapeis.usuario_id == usuario_id)
+    ).all()
+
+    return [
+        {
+            "usuario": u,
+            "papel": p
+        }
+        for u, p in papeis_users
+    ]
