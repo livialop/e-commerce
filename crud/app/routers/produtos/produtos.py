@@ -6,7 +6,7 @@ from sqlmodel import Session
 
 from crud.database.database import get_session
 from crud.models.model import Produtos, ProdutoCategorias, Categorias
-from crud.dto.dto import ProdutoCreate, ProdutoUpdate
+from crud.dto.dto import ProdutoCreate, ProdutoUpdate, ProdutoCategoriaUpdate
 
 
 produto_router = APIRouter(prefix="/produtos", tags=["Produtos"])
@@ -133,3 +133,38 @@ def criar_categoria_prod(produto_id: int, categoria_id: int, session: Session = 
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao adicionar a categoria do produto.")
+    
+@produto_router.patch("/{produto_id}/categorias/{categoria_id}")
+def atualizar_categoria_prod(catprod_update: ProdutoCategoriaUpdate, produto_id: int, categoria_id: int, session: Session = Depends(get_session)):
+    prod_categoria = session.get(ProdutoCategoriaUpdate, (produto_id, categoria_id))
+    produto = session.get(Produtos, produto_id)
+    categoria = session.get(Categorias, categoria_id)
+
+    if not produto:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Produto não encontrado")
+    if not categoria:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Categoria não encontrada")
+
+    if catprod_update.produto_id != produto.id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Não pode trocar o produto.")
+
+    categoria_existe = session.exec(
+        select(Categorias.id)
+    ).all()
+
+
+    if catprod_update.categoria_id in categoria_existe:
+        if catprod_update.categoria_id != prod_categoria.categoria_id:
+            prod_categoria.categoria_id = catprod_update.categoria_id
+        else:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Esse produto já está com essa categoria.")
+    else:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Essa categoria não existe.")
+
+    try:
+        session.commit()
+        session.refresh(prod_categoria)
+        return prod_categoria
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar categoria do produto")

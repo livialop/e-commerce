@@ -15,6 +15,10 @@ class UsuarioUpdate(BaseModel):
     email: Optional[EmailStr] = Field(default=None, max_length=120)
     senha: Optional[str] = Field(default=None, max_length=255)
 
+class UsuarioPapeisUpdate(BaseModel):
+    usuario_id: int
+    papel_id: int
+
 
 # ------------ PRODUTO ------------
 
@@ -27,6 +31,10 @@ class ProdutoUpdate(BaseModel):
     nome: Optional[str] = Field(default=None, max_length=150)
     descricao: Optional[str] = Field(default=None)
     preco: Optional[Decimal] = Field(default=None, max_digits=10, decimal_places=2)
+
+class ProdutoCategoriaUpdate(BaseModel):
+    produto_id: int
+    categoria_id: int
 
 # ------------ PEDIDO ------------
 

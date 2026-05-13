@@ -5,7 +5,7 @@ from typing import List
 
 from crud.database.database import get_session
 from crud.models.model import Usuarios, Papeis, UsuarioPapeis
-from crud.dto.dto import UsuarioCreate, UsuarioUpdate
+from crud.dto.dto import UsuarioCreate, UsuarioUpdate, UsuarioPapeisUpdate
 
 from pwdlib import PasswordHash
 
@@ -146,7 +146,7 @@ def criar_papelusuario(usuario_id: int, papel_id: int, session: Session = Depend
         papel_id=papel_id
     )
 
-    session.add()
+    session.add(novo_papeluser)
 
     try:
         session.commit()
@@ -155,4 +155,41 @@ def criar_papelusuario(usuario_id: int, papel_id: int, session: Session = Depend
     except Exception as e:
         session.rollback()
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao adicionar papel ao usuário")
+    
+
+@user_router.patch("/{usuario_id}/papeis/{papel_id}")
+def atualizar_papelusuario(papeluser_update: UsuarioPapeisUpdate, usuario_id: int, papel_id: int, session: Session = Depends(get_session)):
+    user_papel = session.get(UsuarioPapeis, (usuario_id, papel_id))
+    user = session.get(Usuarios, usuario_id)
+    papel = session.get(Papeis, papel_id)
+    
+    if not user:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
+    if not papel:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Papel não encontrado")
+
+    if papeluser_update.usuario_id != user.id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Não pode trocar o usuário.")
+
+    papel_existe = session.exec(
+        select(Papeis.id)
+    ).all()
+
+    # print(papel_existe)
+
+    if papeluser_update.papel_id in papel_existe:
+        if papeluser_update.papel_id != user_papel.papel_id:
+            user_papel.papel_id = papeluser_update.papel_id
+        else:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Esse usuário já está com esse papel")
+    else:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Esse papel não existe.")
+        
+    try:
+        session.commit()
+        session.refresh(user_papel)
+        return user_papel
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar papel do usuário")
     
