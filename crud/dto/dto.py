@@ -40,13 +40,18 @@ class ProdutoCategoriaUpdate(BaseModel):
 
 class PedidoCreate(BaseModel):
     usuario_id: int
-    total: Optional[Decimal] = Field(max_digits=10, decimal_places=2)
     status: Optional[str] = Field(max_length=50)
 
 class PedidoUpdate(BaseModel):
     usuario_id: Optional[int] = None
     total: Optional[Decimal] = Field(default=None, max_digits=10, decimal_places=2)
     status: Optional[str] = Field(default=None, max_length=50)
+
+# ------------ ITENS PEDIDO ------------
+class ItemPedidoCreate(BaseModel):
+    produto_id: int
+    pedido_id: int
+    quantidade: int
 
 # ------------ PAPEIS ------------
 
