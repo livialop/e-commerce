@@ -10,14 +10,14 @@ from crud.dto.dto import CategoriaCreate, CategoriaUpdate
 
 categorias_router = APIRouter(prefix="/categorias", tags=["Categorias"])
 
-@categorias_router.get("/categorias/", response_model=List[Categorias])
+@categorias_router.get("/", response_model=List[Categorias])
 def listar_categorias(session: Session = Depends(get_session)):
     categorias = session.exec(
         select(Categorias)
     ).all()
     return categorias
 
-@categorias_router.post("/categorias/", response_model=Categorias)
+@categorias_router.post("/", response_model=Categorias)
 def criar_categoria(categoria: CategoriaCreate, session: Session = Depends(get_session)):
     categoria_ja_existe = session.exec(
         select(Categorias).where(Categorias.nome == categoria.nome)
@@ -41,7 +41,7 @@ def criar_categoria(categoria: CategoriaCreate, session: Session = Depends(get_s
     return nova_categoria
 
 
-@categorias_router.patch("/categorias/{categoria_id}", response_model=Categorias)
+@categorias_router.patch("/{categoria_id}", response_model=Categorias)
 def atualizar_categoria(categoria_update: CategoriaUpdate, categoria_id: int, session: Session = Depends(get_session)):
     categoria = session.get(Categorias, categoria_id)
     if not categoria:
@@ -62,7 +62,7 @@ def atualizar_categoria(categoria_update: CategoriaUpdate, categoria_id: int, se
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar categoria.")
 
 
-@categorias_router.delete("/categorias/{categoria_id}")
+@categorias_router.delete("/{categoria_id}")
 def deletar_categoria(categoria_id: int, session: Session = Depends(get_session)):
     categoria = session.get(Categorias, categoria_id)
 

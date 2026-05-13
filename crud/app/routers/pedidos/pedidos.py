@@ -9,7 +9,7 @@ from crud.dto.dto import PedidoCreate, PedidoUpdate
 
 pedidos_router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 
-@pedidos_router.get("/pedidos/", response_model=List[Pedidos])
+@pedidos_router.get("/", response_model=List[Pedidos])
 def listar_pedidos(session: Session = Depends(get_session)):
     pedidos = session.exec(
         select(Pedidos)
@@ -17,7 +17,7 @@ def listar_pedidos(session: Session = Depends(get_session)):
     return pedidos
 
 
-@pedidos_router.post("/pedidos/", response_model=Pedidos)
+@pedidos_router.post("/", response_model=Pedidos)
 def criar_pedido(pedido: PedidoCreate, session: Session = Depends(get_session)):
     usuario_existe: bool = session.exec(
         select(Usuarios).where(Usuarios.id == pedido.usuario_id)
@@ -45,7 +45,7 @@ def criar_pedido(pedido: PedidoCreate, session: Session = Depends(get_session)):
     return novo_pedido
     
 
-@pedidos_router.patch("/pedidos/{pedido_id}", response_model=Pedidos)
+@pedidos_router.patch("/{pedido_id}", response_model=Pedidos)
 def atualizar_pedido(pedido_update: PedidoUpdate, pedido_id: int, session: Session = Depends(get_session)):
     pedido = session.get(Pedidos, pedido_id)
     if not pedido:
@@ -72,7 +72,7 @@ def atualizar_pedido(pedido_update: PedidoUpdate, pedido_id: int, session: Sessi
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar pedido.")
 
 
-@pedidos_router.delete("/pedidos/{pedido_id}")
+@pedidos_router.delete("/{pedido_id}")
 def deletar_pedido(pedido_id: int, session: Session = Depends(get_session)):
     pedido = session.get(Pedidos, pedido_id)
 

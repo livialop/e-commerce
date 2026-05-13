@@ -9,14 +9,14 @@ from crud.dto.dto import EstoqueCreate, EstoqueUpdate
 
 estoque_router = APIRouter(prefix="/estoque", tags=["Estoque"])
 
-@estoque_router.get("/estoque/", response_model=List[Estoque])
+@estoque_router.get("/", response_model=List[Estoque])
 def listar_estoque(session: Session = Depends(get_session)):
     estoque: List[Estoque] = session.exec(
         select(Estoque)
     ).all()
     return estoque
 
-@estoque_router.post("/estoque/", response_model=Estoque)
+@estoque_router.post("/", response_model=Estoque)
 def criar_estoque(estoque: EstoqueCreate, session: Session = Depends(get_session)):
     produto_existe: bool = session.exec(
         select(Estoque).where(Estoque.produto_id == estoque.produto_id)
@@ -43,7 +43,7 @@ def criar_estoque(estoque: EstoqueCreate, session: Session = Depends(get_session
     return novo_estoque
 
 
-@estoque_router.patch("/estoque/{estoque_id}", response_model=Estoque)
+@estoque_router.patch("/{estoque_id}", response_model=Estoque)
 def atualizar_estoque(estoque_update: EstoqueUpdate, estoque_id: int, session: Session = Depends(get_session)):
     estoque = session.get(Estoque, estoque_id)
     if not estoque:
@@ -65,7 +65,7 @@ def atualizar_estoque(estoque_update: EstoqueUpdate, estoque_id: int, session: S
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar estoque.")
 
 
-@estoque_router.delete("/estoque/{estoque_id}")
+@estoque_router.delete("/{estoque_id}")
 def deletar_estoque(estoque_id: int, session: Session = Depends(get_session)):
     estoque = session.get(Estoque, estoque_id)
 

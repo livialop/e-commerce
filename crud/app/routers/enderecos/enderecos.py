@@ -9,14 +9,14 @@ from crud.dto.dto import EnderecoCreate, EnderecoUpdate
 
 enderecos_router = APIRouter(prefix="/enderecos", tags=["Endereços"])
 
-@enderecos_router.get("/enderecos/", response_model=List[Enderecos])
+@enderecos_router.get("/", response_model=List[Enderecos])
 def listar_enderecos(session: Session = Depends(get_session)):
     enderecos = session.exec(
         select(Enderecos)
     ).all()
     return enderecos
 
-@enderecos_router.post("/enderecos/", response_model=Enderecos)
+@enderecos_router.post("/", response_model=Enderecos)
 def criar_endereco(endereco: EnderecoCreate, session: Session = Depends(get_session)):
     endereco_ja_cadastrado: bool = session.exec(
         select(Enderecos).where(Enderecos.usuario_id == endereco.usuario_id)
@@ -44,7 +44,7 @@ def criar_endereco(endereco: EnderecoCreate, session: Session = Depends(get_sess
     return novo_endereco
 
 
-@enderecos_router.patch("/enderecos/{endereco_id}", response_model=Enderecos)
+@enderecos_router.patch("/{endereco_id}", response_model=Enderecos)
 def atualizar_endereco(endereco_update: EnderecoUpdate, endereco_id: int, session: Session = Depends(get_session)):
     endereco = session.get(Enderecos, endereco_id)
     if not endereco:
@@ -70,7 +70,7 @@ def atualizar_endereco(endereco_update: EnderecoUpdate, endereco_id: int, sessio
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar endereço.")
 
 
-@enderecos_router.delete("/enderecos/{endereco_id}")
+@enderecos_router.delete("/{endereco_id}")
 def deletar_endereco(endereco_id: int, session: Session = Depends(get_session)):
     endereco = session.get(Enderecos, endereco_id)
 

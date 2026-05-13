@@ -9,7 +9,7 @@ from crud.dto.dto import AvaliacaoCreate, AvaliacaoUpdate
 
 avaliacoes_router = APIRouter(prefix="/avaliacoes", tags=["Avaliações"])
 
-@avaliacoes_router.get("/avaliacoes/", response_model=List[Avaliacoes])
+@avaliacoes_router.get("/", response_model=List[Avaliacoes])
 def listar_avaliacoes(session: Session = Depends(get_session)):
     avaliacoes = session.exec(
         select(Avaliacoes)
@@ -17,7 +17,7 @@ def listar_avaliacoes(session: Session = Depends(get_session)):
     return avaliacoes
 
 
-@avaliacoes_router.post("/avaliacoes/", response_model=Avaliacoes)
+@avaliacoes_router.post("/", response_model=Avaliacoes)
 def criar_avaliacao(avaliacao: AvaliacaoCreate, session: Session = Depends(get_session)):
     usuario_existe: bool = session.exec(
         select(Avaliacoes).where(Avaliacoes.usuario_id == avaliacao.usuario_id)
@@ -54,7 +54,7 @@ def criar_avaliacao(avaliacao: AvaliacaoCreate, session: Session = Depends(get_s
     return nova_avaliacao
 
 
-@avaliacoes_router.patch("/avaliacoes/{avaliacao_id}", response_model=Avaliacoes)
+@avaliacoes_router.patch("/{avaliacao_id}", response_model=Avaliacoes)
 def atualizar_avaliacao(avaliacao_update: AvaliacaoUpdate, avaliacao_id: int, session: Session = Depends(get_session)):
     avaliacao = session.get(Avaliacoes, avaliacao_id)
     if not avaliacao:
@@ -80,7 +80,7 @@ def atualizar_avaliacao(avaliacao_update: AvaliacaoUpdate, avaliacao_id: int, se
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar avaliação.")
 
 
-@avaliacoes_router.delete("/avaliacoes/{avaliacao_id}")
+@avaliacoes_router.delete("/{avaliacao_id}")
 def deletar_avaliacao(avaliacao_id: int, session: Session = Depends(get_session)):
     avaliacao = session.get(Avaliacoes, avaliacao_id)
 

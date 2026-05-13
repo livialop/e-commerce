@@ -12,7 +12,7 @@ from crud.dto.dto import ProdutoCreate, ProdutoUpdate
 produto_router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
 
-@produto_router.get("/produtos/", response_model=List[Produtos])
+@produto_router.get("/", response_model=List[Produtos])
 def listar_produtos(session: Session = Depends(get_session)):
     produtos = session.exec(
         select(Produtos)
@@ -20,7 +20,7 @@ def listar_produtos(session: Session = Depends(get_session)):
 
     return produtos
 
-@produto_router.post("/produtos/", response_model=Produtos)
+@produto_router.post("/", response_model=Produtos)
 def criar_produto(produto: ProdutoCreate, session: Session = Depends(get_session)):
     if produto.preco <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Preço precisa ser maior que 0.")
@@ -42,7 +42,7 @@ def criar_produto(produto: ProdutoCreate, session: Session = Depends(get_session
     return produto
 
 
-@produto_router.patch("/produtos/{produto_id}", response_model=Produtos)
+@produto_router.patch("/{produto_id}", response_model=Produtos)
 def atualizar_produto(produto_update: ProdutoUpdate, produto_id: int, session: Session = Depends(get_session)):
     produto = session.get(Produtos, produto_id)
     if not produto:
@@ -66,7 +66,7 @@ def atualizar_produto(produto_update: ProdutoUpdate, produto_id: int, session: S
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar produto.")
 
 
-@produto_router.delete("/produtos/{produto_id}")
+@produto_router.delete("/{produto_id}")
 def deletar_produto(produto_id: int, session: Session = Depends(get_session)):
     produto = session.get(Produtos, produto_id)
     
@@ -83,7 +83,7 @@ def deletar_produto(produto_id: int, session: Session = Depends(get_session)):
     
 
 # Produtos Categorias
-@produto_router.get("/produtos/categoria/{produto_id}")
+@produto_router.get("/{produto_id}/categoria")
 def listar_produtos_categorias(produto_id: int, session: Session = Depends(get_session)):
     produtos_categorias = session.exec(
         select(Produtos.nome, Categorias.nome)
@@ -99,3 +99,37 @@ def listar_produtos_categorias(produto_id: int, session: Session = Depends(get_s
             "categoria": c
         } for p, c in produtos_categorias
     ]
+
+
+@produto_router.post("/{produto_id}/categorias/{categoria_id}")
+def criar_categoria_prod(produto_id: int, categoria_id: int, session: Session = Depends(get_session)):
+    produto = session.get(Produtos, produto_id)
+    categoria = session.get(Categorias, categoria_id)
+
+    if not produto:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Produto não encontrado.")
+    if not categoria:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Categoria não encontrada.")    
+    
+    existe = session.exec(
+        select(ProdutoCategorias)
+        .where(ProdutoCategorias.categoria_id == categoria_id, ProdutoCategorias.produto_id == produto_id)
+    ).first()
+
+    if existe:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Já existe produto com essa categoria")
+    
+    nova_cat_prod = ProdutoCategorias(
+        produto_id=produto_id,
+        categoria_id=categoria_id
+    )
+
+    session.add()
+
+    try:
+        session.commit()
+        return nova_cat_prod
+    
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao adicionar a categoria do produto.")

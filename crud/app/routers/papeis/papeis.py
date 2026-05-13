@@ -10,7 +10,7 @@ from crud.dto.dto import PapelCreate, PapelUpdate
 
 papeis_router = APIRouter(prefix="/papeis", tags=["Papéis"])
 
-@papeis_router.get("/papeis/", response_model=List[Papeis])
+@papeis_router.get("/", response_model=List[Papeis])
 def listar_papeis(session: Session = Depends(get_session)):
     papeis = session.exec(
         select(Papeis)
@@ -18,7 +18,7 @@ def listar_papeis(session: Session = Depends(get_session)):
     return papeis
 
 
-@papeis_router.post("/papeis/", response_model=Papeis)
+@papeis_router.post("/", response_model=Papeis)
 def criar_papel(papel: PapelCreate, session: Session = Depends(get_session)):
     papel_existe = session.exec(
         select(Papeis).where(Papeis.nome == papel.nome)
@@ -42,7 +42,7 @@ def criar_papel(papel: PapelCreate, session: Session = Depends(get_session)):
     return papel
 
 
-@papeis_router.patch("/papeis/{papel_id}", response_model=Papeis)
+@papeis_router.patch("/{papel_id}", response_model=Papeis)
 def atualizar_papel(papel_update: PapelUpdate, papel_id: int, session: Session = Depends(get_session)):
     papel = session.get(Papeis, papel_id)
     if not papel:
@@ -63,7 +63,7 @@ def atualizar_papel(papel_update: PapelUpdate, papel_id: int, session: Session =
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar papel.")
 
 
-@papeis_router.delete("/papeis/{papel_id}")
+@papeis_router.delete("/{papel_id}")
 def deletar_papel(papel_id: int, session: Session = Depends(get_session)):
     papel = session.get(Papeis, papel_id)
 

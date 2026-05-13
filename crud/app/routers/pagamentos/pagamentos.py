@@ -10,14 +10,14 @@ from crud.dto.dto import PagamentoCreate, PagamentoUpdate
 
 pagamentos_router = APIRouter(prefix="/pagamentos", tags=["Pagamentos"])
 
-@pagamentos_router.get("/pagamentos/", response_model=List[Pagamentos])
+@pagamentos_router.get("/", response_model=List[Pagamentos])
 def listar_pagamentos(session: Session = Depends(get_session)):
     pagamentos = session.exec(
         select(Pagamentos)
     ).all()
     return pagamentos
 
-@pagamentos_router.post("/pagamentos/", response_model=Pagamentos)
+@pagamentos_router.post("/", response_model=Pagamentos)
 def criar_pagamento(pagamento: PagamentoCreate, session: Session = Depends(get_session)):
     if pagamento.valor <= 0:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="O valor precisa ser maior que 0.")
@@ -40,7 +40,7 @@ def criar_pagamento(pagamento: PagamentoCreate, session: Session = Depends(get_s
     return novo_pagamento
 
 
-@pagamentos_router.patch("/pagamentos/{pagamento_id}", response_model=Pagamentos)
+@pagamentos_router.patch("/{pagamento_id}", response_model=Pagamentos)
 def atualizar_pagamento(pagamento_update: PagamentoUpdate, pagamento_id: int, session: Session = Depends(get_session)):
     pagamento = session.get(Pagamentos, pagamento_id)
     if not pagamento:
@@ -66,7 +66,7 @@ def atualizar_pagamento(pagamento_update: PagamentoUpdate, pagamento_id: int, se
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Falha ao atualizar pagamento.")
 
 
-@pagamentos_router.delete("/pagamentos/{pagamento_id}")
+@pagamentos_router.delete("/{pagamento_id}")
 def deletar_pagamento(pagamento_id: int, session: Session = Depends(get_session)):
     pagamento = session.get(Pagamentos, pagamento_id)
 
