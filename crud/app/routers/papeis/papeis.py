@@ -6,6 +6,7 @@ from typing import List
 from crud.database.database import get_session
 from crud.models.model import Papeis
 from crud.dto.dto import PapelCreate, PapelUpdate
+from routers.auth.login import get_usuario_logado
 
 
 papeis_router = APIRouter(prefix="/papeis", tags=["Papéis"])
