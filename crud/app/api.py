@@ -8,6 +8,7 @@ from .routers.papeis import papeis
 from .routers.pedidos import pedidos
 from .routers.produtos import produtos   
 from .routers.users import users
+from .routers.auth import login
 
 
 app = FastAPI()
@@ -22,6 +23,7 @@ app.include_router(papeis.papeis_router)
 app.include_router(pedidos.pedidos_router)
 app.include_router(produtos.produto_router)
 app.include_router(users.user_router)
+app.include_router(login.login_router)
 
 
 @app.get("/")

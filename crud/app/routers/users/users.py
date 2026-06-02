@@ -11,7 +11,7 @@ from pwdlib import PasswordHash
 
 
 user_router = APIRouter(prefix="/users", tags=["Usuários"])
-password_hash = PasswordHash.recommended()
+password_hash = PasswordHash.recommended() # utilizando argon2
 
 
 @user_router.get("/", response_model=List[Usuarios])
